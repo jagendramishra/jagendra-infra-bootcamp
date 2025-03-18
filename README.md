@@ -22,7 +22,7 @@ az login --service-principal \
   --tenant **************
 
 # Create Resource Group - already created
-az group create --name $RESOURCE_GROUP_NAME --location eastus
+az group create --name $RESOURCE_GROUP_NAME --location northeurope
 
 # Create Storage Account
 az storage account create --name $STORAGE_ACCOUNT_NAME --resource-group jagendra-infra-bootcamp --sku Standard_LRS
