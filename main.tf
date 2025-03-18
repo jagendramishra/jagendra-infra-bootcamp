@@ -25,7 +25,7 @@ resource "random_password" "postgres_password" {
 }
 
 resource "azurerm_key_vault_secret" "postgres_secret" {
-  name         = "postgres-password"
+  name         = "postgres-password-jag"
   value        = random_password.postgres_password.result
   key_vault_id = azurerm_key_vault.kv.id
 }
@@ -73,16 +73,16 @@ resource "azurerm_kubernetes_cluster" "aks" {
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "example" {
-  name                  = "default"
+  name                  = "defaultjag"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
   vm_size               = var.vm_size
 
-  min_count = 2
-  max_count = 5
+  min_count = null
+  max_count = null
 }
 
 resource "azurerm_monitor_diagnostic_setting" "aks_diagnostics" {
-  name                       = "aks-diagnostics"
+  name                       = "aks-diagnostics-jag"
   target_resource_id         = azurerm_kubernetes_cluster.aks.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.aks_log.id
 
