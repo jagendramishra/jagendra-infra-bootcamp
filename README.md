@@ -33,25 +33,17 @@ az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOU
 STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query "[0].value" --output tsv)
 
 # Local terraform run
+terraform init
 terraform fmt
-
 terraform validate
-
 terraform plan
-
 terraform apply
 
 # Fetch cluster in cli
-
 az aks get-credentials --resource-group $RESOURCE_GROUP_NAME --name "aks-cluster"
 
 # Fetch secret value
-keyvault permission since RABC is not enabled. TBD-
-
-az keyvault set-policy \
-  --name aks-keyvault-jag \
-  --spn 72b1f2e8-5897-4b77-b4f7-0670ce8d7869 \
-  --secret-permissions get list
+keyvault permission since RABC is not enabled. #TBD
 
 az keyvault set-policy \
   --name aks-keyvault-jag \
@@ -60,10 +52,10 @@ az keyvault set-policy \
 
 az keyvault show --name aks-keyvault-jag --query "properties.accessPolicies"
 
-# Fetch db password using
+# Fetch db password
 az keyvault secret show --vault-name aks-keyvault-jag --name postgres-password-jag
 
-# Install ingress-nginx and other services-
+# Install ingress-nginx and other required services
 
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
@@ -94,13 +86,11 @@ helm install kibana elastic/kibana \
 
 
 # configure grafana
-
 kubectl get secret --namespace grafana-system grafana -o jsonpath="{.data.admin-password}" | base64 --decode
 
-128.251.111.115 externalip
+128.251.111.115 externalip for the ingress but its not opening up, even though port 80 is allowed.
 
 # Network issue investigation
-
 az network lb list --resource-group $RESOURCE_GROUP_NAME  --output table
 
 check if port 80 is allowed
@@ -120,8 +110,7 @@ az network watcher connectivity-check \
 az network watcher configure --resource-group $RESOURCE_GROUP_NAME --locations northeurope --enabled true
 
 
-# grafana- connnection
-
+# grafana- connnection which is not working either
 aks-postgres-server.postgres.database.azure.com
 
 psql "host=aks-postgres-server.postgres.database.azure.com \
@@ -137,9 +126,7 @@ az postgres server show --id aks-postgres-server --resource-group $RESOURCE_GROU
 
 az postgres server firewall-rule list --server-name aks-postgres-server --resource-group $RESOURCE_GROUP_NAME
 
-
 # add local ip to azure firewall
-
 az postgres server firewall-rule create \
   --resource-group $RESOURCE_GROUP_NAME \
   --server-name aks-postgres-server \
@@ -147,14 +134,11 @@ az postgres server firewall-rule create \
   --start-ip-address 192.168.1.38 \
   --end-ip-address 192.168.1.38
 
-
 az postgres server firewall-rule list \
   --resource-group $RESOURCE_GROUP_NAME \
   --server-name aks-postgres-server
 
-
 # increase nodepool
-
 az aks scale \
   --resource-group $RESOURCE_GROUP_NAME \
   --name aks-cluster \
