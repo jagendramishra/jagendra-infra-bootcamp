@@ -1,7 +1,7 @@
 # jagendra-infra-bootcamp
 AKS cluster using terraform
 
-First create a backend for terraform state persistence.
+# First create a backend for terraform state persistence.
 
 Export these vars in command line
 
@@ -32,6 +32,7 @@ az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOU
 
 STORAGE_ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP_NAME --account-name $STORAGE_ACCOUNT_NAME --query "[0].value" --output tsv)
 
+# Local terraform run
 terraform fmt
 
 terraform validate
@@ -40,10 +41,11 @@ terraform plan
 
 terraform apply
 
-Fetch cluster in cli-
+# Fetch cluster in cli
 
 az aks get-credentials --resource-group $RESOURCE_GROUP_NAME --name "aks-cluster"
 
+# Fetch secret value
 keyvault permission since RABC is not enabled. TBD-
 
 az keyvault set-policy \
@@ -56,21 +58,18 @@ az keyvault set-policy \
   --spn 72b1f2e8-5897-4b77-b4f7-0670ce8d7869 \
   --secret-permissions get list set delete
 
-
-
 az keyvault show --name aks-keyvault-jag --query "properties.accessPolicies"
 
-Fetch db password using
+# Fetch db password using
 az keyvault secret show --vault-name aks-keyvault-jag --name postgres-password-jag
 
-Install ingress-nginx and other services-
+# Install ingress-nginx and other services-
 
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 
 helm install ingress-nginx ingress-nginx/ingress-nginx \
   --namespace ingress-nginx --create-namespace
-
 
 helm repo add elastic https://helm.elastic.co
 helm repo update
@@ -85,13 +84,13 @@ helm install grafana grafana/grafana \
   --namespace grafana-system --create-namespace \
   --set service.type=ClusterIP
 
-configure grafana
+# configure grafana
 
 kubectl get secret --namespace grafana-system grafana -o jsonpath="{.data.admin-password}" | base64 --decode
 
-
 128.251.111.115 externalip
 
+# Network issue investigation
 
 az network lb list --resource-group $RESOURCE_GROUP_NAME  --output table
 
@@ -112,7 +111,7 @@ az network watcher connectivity-check \
 az network watcher configure --resource-group $RESOURCE_GROUP_NAME --locations northeurope --enabled true
 
 
-grafana- connnection
+# grafana- connnection
 
 aks-postgres-server.postgres.database.azure.com
 
@@ -130,8 +129,7 @@ az postgres server show --id aks-postgres-server --resource-group $RESOURCE_GROU
 az postgres server firewall-rule list --server-name aks-postgres-server --resource-group $RESOURCE_GROUP_NAME
 
 
-add ip to azure firewall
-
+# add local ip to azure firewall
 
 az postgres server firewall-rule create \
   --resource-group $RESOURCE_GROUP_NAME \
@@ -144,3 +142,12 @@ az postgres server firewall-rule create \
 az postgres server firewall-rule list \
   --resource-group $RESOURCE_GROUP_NAME \
   --server-name aks-postgres-server
+
+
+# increase nodepool
+
+az aks scale \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --name aks-cluster \
+  --node-count 3 \
+  --nodepool-name defaultjag
