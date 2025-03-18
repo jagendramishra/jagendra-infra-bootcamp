@@ -84,6 +84,15 @@ helm install grafana grafana/grafana \
   --namespace grafana-system --create-namespace \
   --set service.type=ClusterIP
 
+helm repo add elastic https://helm.elastic.co
+helm repo update
+
+helm install kibana elastic/kibana \
+  --namespace elastic-system --create-namespace \
+  --set service.type=ClusterIP \
+  --set elasticsearchHosts=http://elasticsearch-master:9200
+
+
 # configure grafana
 
 kubectl get secret --namespace grafana-system grafana -o jsonpath="{.data.admin-password}" | base64 --decode

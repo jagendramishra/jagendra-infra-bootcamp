@@ -24,3 +24,10 @@ spec:
                 name: elasticsearch-master
                 port:
                   number: 9200
+          - path: /kibana
+            pathType: Prefix
+            backend:
+              service:
+                name: kibana-kibana
+                port:
+                  number: 5601

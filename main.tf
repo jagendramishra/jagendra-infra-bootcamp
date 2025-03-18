@@ -71,7 +71,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type = "SystemAssigned"
   }
 }
-
+#TBD auto-scalling enablement
 resource "azurerm_kubernetes_cluster_node_pool" "example" {
   name                  = "defaultjag"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
