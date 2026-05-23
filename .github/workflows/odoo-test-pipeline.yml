@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  test_ssh:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,7 +30,7 @@ jobs:
 
           ssh-add ~/.ssh/id_rsa
 
-          ssh-keyscan -H odoo2.uat.oman >> ~/.ssh/known_hosts
+          ssh-keyscan -H github.com >> ~/.ssh/known_hosts
 
           chmod 644 ~/.ssh/known_hosts
 
@@ -44,23 +44,29 @@ jobs:
         run: |
           set -x
 
+          echo "=== SSH ENV ==="
           env | grep SSH || true
 
+          echo "=== SSH AGENT KEYS ==="
           ssh-add -l || true
 
-          ssh -v \
-            -o StrictHostKeyChecking=no \
-            root@odoo2.uat.oman \
-            "hostname"
+          echo "=== TEST GITHUB SSH ==="
+          ssh -T git@github.com || true
 
-      - name: Test RSYNC
+      - name: Test RSYNC locally
         shell: bash
         run: |
+          set -x
+
           mkdir -p testdir
 
-          echo "hello" > testdir/test.txt
+          echo "hello world" > testdir/test.txt
 
           rsync -avz \
             -e "ssh -o StrictHostKeyChecking=no" \
             ./testdir/ \
-            root@odoo2.uat.oman:/tmp/testdir/
+            ./testdir-copy/
+
+          echo "=== RSYNC COMPLETED ==="
+
+          ls -la ./testdir-copy/
