@@ -1,0 +1,63 @@
+name: Test Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      deploy_drc_only:
+        required: false
+        type: string
+        default: "false"
+
+jobs:
+
+  prepare:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Debug
+        run: |
+          echo "deploy_drc_only=${{ inputs.deploy_drc_only }}"
+
+  deploy_stg:
+    runs-on: ubuntu-latest
+
+    needs:
+      - prepare
+
+    if: inputs.deploy_drc_only != 'true'
+
+    steps:
+      - run: echo "STG deployment"
+
+  deploy_uat:
+    runs-on: ubuntu-latest
+
+    needs:
+      - deploy_stg
+
+    if: inputs.deploy_drc_only != 'true'
+
+    steps:
+      - run: echo "UAT deployment"
+
+  deploy_prd:
+    runs-on: ubuntu-latest
+
+    needs:
+      - deploy_uat
+
+    if: inputs.deploy_drc_only != 'true'
+
+    steps:
+      - run: echo "PRD deployment"
+
+  deploy_drc:
+    runs-on: ubuntu-latest
+
+    needs:
+      - prepare
+
+    if: inputs.deploy_drc_only == 'true'
+
+    steps:
+      - run: echo "DRC deployment"
