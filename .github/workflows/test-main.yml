@@ -1,0 +1,25 @@
+name: Test Main Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_drc_only:
+        description: "Deploy only DRC"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+
+jobs:
+  call_reusable:
+    uses: ./.github/workflows/test-reusable.yml
+
+    with:
+      deploy_drc_only: ${{ github.event.inputs.deploy_drc_only }}
+
+    secrets: inherit
